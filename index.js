@@ -11,18 +11,26 @@ const app = express();
 let isConnected = false;
 
 async function connectDB() {
-    if (isConnected) {
+    if (isConnected && mongoose.connection.readyState === 1) {
         return;
     }
 
     try {
+        // Close any existing connections
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.connection.close();
+        }
+
         await mongoose.connect(process.env.MONGO_URL, {
-            serverSelectionTimeoutMS: 5000,
+            bufferCommands: false,
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 10000,
             socketTimeoutMS: 45000,
         });
         isConnected = true;
         console.log("Connected to DB");
     } catch (error) {
+        isConnected = false;
         console.error("MongoDB connection error:", error);
         throw error;
     }

@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const { Schema, model, Types } = mongoose;
 
+// Disable buffering for serverless
+mongoose.set('bufferCommands', false);
+
 const ObjectId = Schema.ObjectId;
 
 const userSchema = new Schema({
